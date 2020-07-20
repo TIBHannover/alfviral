@@ -31,6 +31,7 @@
         <alfresco.data.location>alf_data_dev</alfresco.data.location>
         <!-- This controls which properties will be picked in multi-enviromment build -->
         <env>local</env>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
    <!-- Here we realize the connection with the Alfresco selected platform (e.g.version and edition) -->

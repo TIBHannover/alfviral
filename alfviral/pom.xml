@@ -34,6 +34,7 @@
              for embedded run, defaults to the 'local' environment. See SDK Parent POM for more info.
         <env>local</env>
         -->
+        <maven.deploy.skip>false</maven.deploy.skip>
     </properties>
 
     <!-- Here we realize the connection with the Alfresco selected platform 
