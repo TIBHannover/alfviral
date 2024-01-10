@@ -53,6 +53,7 @@ import com.fegor.alfresco.security.antivirus.ICAPScan;
 import com.fegor.alfresco.security.antivirus.InStreamScan;
 import com.fegor.alfresco.security.antivirus.VirusScanMode;
 import com.fegor.alfresco.security.antivirus.VirusTotalScan;
+import org.springframework.context.ApplicationContext;
 
 /**
  * @author Fernando.Gonzalez
@@ -179,7 +180,7 @@ public class AntivirusServiceImpl implements AntivirusService {
 						inStreamScan.setHost(inStreamHost);
 						inStreamScan.setPort(inStreamPort);
 						inStreamScan.setTimeout(inStreamTimeout);
-						inStreamScan.setData(contentReader.getContentString().getBytes());
+						inStreamScan.setData(contentReader.getContentInputStream());
 						res = inStreamScan.scan(nodeRef);
 					}
 
