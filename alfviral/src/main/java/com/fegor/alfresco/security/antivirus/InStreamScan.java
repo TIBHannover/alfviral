@@ -174,6 +174,9 @@ public final class InStreamScan implements VirusScanMode {
 			
 			if (socket != null)
 				socket.close();
+
+			if (data != null)
+				data.close();
 		}
 
 		/*
