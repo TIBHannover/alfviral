@@ -21,6 +21,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
+import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
@@ -40,7 +41,7 @@ public final class InStreamScan implements VirusScanMode {
 
 	private final Logger logger = Logger.getLogger(InStreamScan.class);
 
-	private byte[] data;
+	private InputStream data;
 	private int chunkSize = 4096;
 	private int port;
 	private String host;
@@ -111,8 +112,9 @@ public final class InStreamScan implements VirusScanMode {
 	 */
 	@Override
 	public int scan() throws IOException {
-		int i = 0;
+		int bytesRead;
 		int result = 0;
+		byte[] buffer = new byte[chunkSize];
 
 		/*
 		 * create socket
@@ -143,16 +145,12 @@ public final class InStreamScan implements VirusScanMode {
 			dataOutputStream.writeBytes("zINSTREAM\0");
 
 			if (logger.isDebugEnabled()) {
-				logger.debug(getClass().getName() + "Send stream for  " + data.length + " bytes");
+				logger.debug(getClass().getName() + "Send stream for  " + data.available() + " bytes");
 			}
 
-			while (i < data.length) {
-				if (i + chunkSize >= data.length) {
-					chunkSize = data.length - i;
-				}
-				dataOutputStream.writeInt(chunkSize);
-				dataOutputStream.write(data, i, chunkSize);
-				i += chunkSize;
+			while ((bytesRead = data.read(buffer)) != -1) {
+				dataOutputStream.writeInt(bytesRead);
+				dataOutputStream.write(buffer, 0, bytesRead);
 			}
 
 			dataOutputStream.writeInt(0);
@@ -177,6 +175,9 @@ public final class InStreamScan implements VirusScanMode {
 			
 			if (socket != null)
 				socket.close();
+
+			if (data != null)
+				data.close();
 		}
 
 		/*
@@ -251,7 +252,7 @@ public final class InStreamScan implements VirusScanMode {
 	/**
 	 * @param data
 	 */
-	public void setData(byte[] data) {
+	public void setData(InputStream data) {
 		this.data = data;
 	}
 
