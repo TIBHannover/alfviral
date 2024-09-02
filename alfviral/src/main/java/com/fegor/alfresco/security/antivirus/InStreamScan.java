@@ -21,6 +21,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
+import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
@@ -174,6 +175,9 @@ public final class InStreamScan implements VirusScanMode {
 			
 			if (socket != null)
 				socket.close();
+
+			if (data != null)
+				data.close();
 		}
 
 		/*
