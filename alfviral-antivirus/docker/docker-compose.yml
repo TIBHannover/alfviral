@@ -1,29 +1,23 @@
 # Alfresco Security and Protection Services (ClamAV+ICAP)
-version: '3.7'
-
+version: '3'
 services:
-  alfviral-clamav-icap:
-    build: 
-      dockerfile: ./Dockerfile
-      context: ./build
-    restart: unless-stopped
+  alfviral-clamav:
+    image: clamav/clamav:stable
+    container_name: alfviral-clamav-icap  # Static container name
+    environment:
+      - CLAMAV_NO_MILTERD=true
+      - CLAMAV_NO_FRESHCLAMD=false
+      - CLAMAV_NO_CLAMD=false
+      - CLAMD_STARTUP_TIMEOUT=1800
+      - FRESHCLAM_CHECKS=1
     ports:
-        - published: 3310
-          target: 3310
-        - published: 22
-          target: 22
+      - 3310:3310
+      - 7357:7357
     volumes:
-      - clam:/var/lib/clamav
-      - alfviral-platform-acs-volume:/usr/local/tomcat/alf_data
-      - openssh-keys-volume:/etc/ssh/keys
-
+      - "clamav_antivirus_db:/var/lib/clamav"
+    restart: unless-stopped
 volumes:
-  clam:
-    external: false
-  alfviral-platform-acs-volume:
-    external: true
-  openssh-keys-volume:
-    external: true
+  clamav_antivirus_db:
 
 #networks:
 #  outpost_network:

@@ -1,4 +1,5 @@
-#!/bin/sh
+
+#!/bin/bash
 
 export COMPOSE_FILE_PATH="${PWD}/docker/docker-compose.yml"
 
