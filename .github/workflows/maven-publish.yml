@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - master
-      - 'edu-sharing-*'
+      - 'edu-sharing-*'   # Match branches like edu-sharing-8.0.0, edu-sharing-9.1.0, etc.
     tags:
-      - '*'  # Triggers releases for tags
+      - '*'               # Trigger release for any tag
 
 jobs:
   build:
@@ -23,22 +23,17 @@ jobs:
           settings-path: ${{ github.workspace }}
 
       - name: Cache Maven packages
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # Dynamic module builds
-      - name: Build alfviral-platform module
-        if: startsWith(github.ref_name, 'edu-sharing-') || github.ref_name == 'master'
-        run: mvn -B package --file alfviral-platform/pom.xml
-      
-      - name: Build alfviral-share module
-        if: startsWith(github.ref_name, 'edu-sharing-') || github.ref_name == 'master'
-        run: mvn -B package --file alfviral-share/pom.xml
+      # Run the multi-module Maven build from the main pom.xml
+      - name: Build all modules with Maven
+        run: mvn -B package --file pom.xml
 
-      # Archive artifacts using v4
+      # Archive artifacts for alfviral-platform and alfviral-share modules
       - name: Archive alfviral-platform artifacts (.jar and .amp)
         if: startsWith(github.ref_name, 'edu-sharing-') || github.ref_name == 'master'
         uses: actions/upload-artifact@v4
@@ -47,7 +42,7 @@ jobs:
           path: |
             alfviral-platform/target/alfviral-platform-*.jar
             alfviral-platform/target/alfviral-platform-*.amp
-          
+
       - name: Archive alfviral-share artifacts (.jar and .amp)
         if: startsWith(github.ref_name, 'edu-sharing-') || github.ref_name == 'master'
         uses: actions/upload-artifact@v4
@@ -63,7 +58,7 @@ jobs:
     needs: build
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Download alfviral-platform artifact
         uses: actions/download-artifact@v4
@@ -77,7 +72,7 @@ jobs:
 
       - name: Create GitHub Release with Auto-generated Release Notes
         id: create_release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v2
         with:
           tag: ${{ github.ref_name }}
           generateReleaseNotes: true
@@ -86,21 +81,13 @@ jobs:
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Upload artifacts as release assets using v4
-      - name: Upload alfviral-platform assets (.jar and .amp)
+      # Upload artifacts as release assets
+      - name: Upload alfviral-platform JAR asset
         uses: actions/upload-release-asset@v4
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: alfviral-platform/target/alfviral-platform-*.jar
           asset_name: alfviral-platform-${{ github.ref_name }}.jar
-          asset_content_type: application/java-archive
-
-      - name: Upload alfviral-share assets (.jar and .amp)
-        uses: actions/upload-release-asset@v4
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: alfviral-share/target/alfviral-share-*.jar
-          asset_name: alfviral-share-${{ github.ref_name }}.jar
           asset_content_type: application/java-archive
 
       - name: Upload alfviral-platform AMP asset
@@ -110,6 +97,14 @@ jobs:
           asset_path: alfviral-platform/target/alfviral-platform-*.amp
           asset_name: alfviral-platform-${{ github.ref_name }}.amp
           asset_content_type: application/zip
+
+      - name: Upload alfviral-share JAR asset
+        uses: actions/upload-release-asset@v4
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: alfviral-share/target/alfviral-share-*.jar
+          asset_name: alfviral-share-${{ github.ref_name }}.jar
+          asset_content_type: application/java-archive
 
       - name: Upload alfviral-share AMP asset
         uses: actions/upload-release-asset@v4
