@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.fegorsoft</groupId>
   <artifactId>alfviral</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.4.0-SNAPSHOT</version>
   <name>AIO - SDK 4.0</name>
   <description>All-In-One (AIO) project for SDK 4.0</description>
   <packaging>pom</packaging>
@@ -17,8 +17,8 @@
     <!-- Properties used in dependency declarations, you don't need to change these -->
     <alfresco.groupId>org.alfresco</alfresco.groupId>
     <alfresco.bomDependencyArtifactId>acs-community-packaging</alfresco.bomDependencyArtifactId>
-    <alfresco.platform.version>6.2.0-ea</alfresco.platform.version>
-    <alfresco.share.version>6.2.0</alfresco.share.version>
+    <alfresco.platform.version>23.2.0</alfresco.platform.version>
+    <alfresco.share.version>23.2.0</alfresco.share.version>
     <!-- Docker images -->
     <docker.acs.image>alfresco/alfresco-content-repository-community</docker.acs.image>
     <docker.share.image>alfresco/alfresco-share</docker.share.image>

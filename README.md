@@ -12,7 +12,7 @@ _Antivirus software as McAfee, Symantec or ClamAV or nothing if you use alfviral
 
 ```
 cd alfviral-antivirus\docker
-docker-compose -f docker-compose.yml up --build
+./run.sh start
 ```
 
 ## Features ⚙️
