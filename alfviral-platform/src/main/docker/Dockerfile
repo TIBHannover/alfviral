@@ -5,8 +5,8 @@ ARG TOMCAT_DIR=/usr/local/tomcat
 USER root
 
 # Install ssh for call commands (clamscan)
-RUN yum -y install openssh-clients
-RUN yum -y install sshpass
+RUN #yum -y install openssh-clients
+RUN #yum -y install sshpass
 
 ARG ALFSCAN=/usr/bin/alfscan
 RUN echo "#!/bin/bash" > ${ALFSCAN}
