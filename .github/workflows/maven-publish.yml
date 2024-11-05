@@ -81,9 +81,9 @@ jobs:
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Upload artifacts as release assets using v4
+      # Upload artifacts as release assets using v2
       - name: Upload alfviral-platform .jar asset
-        uses: actions/upload-release-asset@v4
+        uses: actions/upload-release-asset@v2
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: alfviral-platform/target/alfviral-platform-*.jar
@@ -91,7 +91,7 @@ jobs:
           asset_content_type: application/java-archive
 
       - name: Upload alfviral-platform .amp asset
-        uses: actions/upload-release-asset@v4
+        uses: actions/upload-release-asset@v2
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: alfviral-platform/target/alfviral-platform-*.amp
@@ -99,7 +99,7 @@ jobs:
           asset_content_type: application/octet-stream  # or application/zip based on your preference
 
       - name: Upload alfviral-share .jar asset
-        uses: actions/upload-release-asset@v4
+        uses: actions/upload-release-asset@v2
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: alfviral-share/target/alfviral-share-*.jar
@@ -107,7 +107,7 @@ jobs:
           asset_content_type: application/java-archive
 
       - name: Upload alfviral-share .amp asset
-        uses: actions/upload-release-asset@v4
+        uses: actions/upload-release-asset@v2
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: alfviral-share/target/alfviral-share-*.amp
