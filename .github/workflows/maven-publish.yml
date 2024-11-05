@@ -43,14 +43,16 @@ jobs:
           path: |
             alfviral-platform/target/alfviral-platform-*.jar
             alfviral-platform/target/alfviral-platform-*.amp
+            !alfviral-platform/target/*-tests.jar
 
       - name: Archive alfviral-share assets
         uses: actions/upload-artifact@v4
         with:
           name: alfviral-share
-          path: |
+          paths: |
             alfviral-share/target/alfviral-share-*.jar
             alfviral-share/target/alfviral-share-*.amp
+            !alfviral-share/target/*-tests.jar
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -69,6 +71,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: alfviral-share
+      # Debugging steps to check the contents
+      - name: List contents of alfviral-platform target directory
+        run: |
+          echo "Contents of alfviral directory and subdirectories:"
+          ls -Rals
+
 
       - name: Create GitHub Release with Auto-generated Release Notes
         id: create_release
