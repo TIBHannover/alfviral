@@ -1,46 +1,115 @@
-# This workflow will build a package using Maven
-# For more information see: https://github.com/actions/setup-java#apache-maven-with-a-settings-path
-
-name: Maven Package
+name: Maven Package and Release
 
 on:
   push:
     branches:
       - master
+      - 'edu-sharing-*'   # Match branches like edu-sharing-8.0.0, edu-sharing-9.1.0, etc.
+    tags:
+      - '*'               # Trigger release for any tag
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Set up JDK 11
-      uses: actions/setup-java@v1
-      with:
-        java-version: 11
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
-        settings-path: ${{ github.workspace }} # location for the settings.xml file
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+          server-id: github
+          settings-path: ${{ github.workspace }}
 
-    - name: Cache Maven packages
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      # Run the multi-module Maven build from the main pom.xml
+      - name: Build all modules with Maven
+        run: mvn -B package --file pom.xml
 
-    - name: Archive alfviral-platform-jar artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: alfviral-platform
-        path: alfviral-platform/target/alfviral-platform-*.jar
-        
-    - name: Archive alfviral-share-jar artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: alfviral-share
-        path: alfviral-share/target/alfviral-share-*.jar
+      # Archive artifacts for alfviral-platform and alfviral-share modules
+      - name: Archive alfviral-platform artifacts (.jar and .amp)
+        if: startsWith(github.ref_name, 'edu-sharing-') || github.ref_name == 'master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: alfviral-platform
+          path: |
+            alfviral-platform/target/alfviral-platform-*.jar
+            alfviral-platform/target/alfviral-platform-*.amp
+
+      - name: Archive alfviral-share artifacts (.jar and .amp)
+        if: startsWith(github.ref_name, 'edu-sharing-') || github.ref_name == 'master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: alfviral-share
+          path: |
+            alfviral-share/target/alfviral-share-*.jar
+            alfviral-share/target/alfviral-share-*.amp
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/') && github.ref_name == 'master'
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download alfviral-platform artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: alfviral-platform
+
+      - name: Download alfviral-share artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: alfviral-share
+
+      - name: Create GitHub Release with Auto-generated Release Notes
+        id: create_release
+        uses: ncipollo/release-action@v2
+        with:
+          tag: ${{ github.ref_name }}
+          generateReleaseNotes: true
+          name: "Release ${{ github.ref_name }}"
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Upload artifacts as release assets
+      - name: Upload alfviral-platform JAR asset
+        uses: actions/upload-release-asset@v4
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: alfviral-platform/target/alfviral-platform-*.jar
+          asset_name: alfviral-platform-${{ github.ref_name }}.jar
+          asset_content_type: application/java-archive
+
+      - name: Upload alfviral-platform AMP asset
+        uses: actions/upload-release-asset@v4
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: alfviral-platform/target/alfviral-platform-*.amp
+          asset_name: alfviral-platform-${{ github.ref_name }}.amp
+          asset_content_type: application/zip
+
+      - name: Upload alfviral-share JAR asset
+        uses: actions/upload-release-asset@v4
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: alfviral-share/target/alfviral-share-*.jar
+          asset_name: alfviral-share-${{ github.ref_name }}.jar
+          asset_content_type: application/java-archive
+
+      - name: Upload alfviral-share AMP asset
+        uses: actions/upload-release-asset@v4
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: alfviral-share/target/alfviral-share-*.amp
+          asset_name: alfviral-share-${{ github.ref_name }}.amp
+          asset_content_type: application/zip
