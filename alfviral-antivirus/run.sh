@@ -5,7 +5,7 @@ export COMPOSE_FILE_PATH="${PWD}/docker/docker-compose.yml"
 
 start() {
     docker volume create openssh-keys-volume
-    docker-compose -f "$COMPOSE_FILE_PATH" up --build -d
+    docker-compose -f "$COMPOSE_FILE_PATH" up -d
 }
 
 down() {
@@ -28,6 +28,7 @@ tail_all() {
 
 case "$1" in
   start)
+    down
     start
     tail
     ;;
